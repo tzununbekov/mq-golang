@@ -178,6 +178,11 @@ func (object *MQObject) CB(goOperation int32, gocbd *MQCBD, gomd *MQMD, gogmo *M
 	// defined here. And that in turn will call the user's callback function
 	mqcbd.CallbackFunction = (C.MQPTR)(unsafe.Pointer(C.MQCALLBACK_C))
 
+	fmt.Println(object.qMgr.hConn, mqOperation, (C.PMQVOID)(unsafe.Pointer(&mqcbd)),
+		object.hObj,
+		(C.PMQVOID)(unsafe.Pointer(&mqmd)), (C.PMQVOID)(unsafe.Pointer(&mqgmo)),
+		&mqcc, &mqrc)
+
 	C.MQCB(object.qMgr.hConn, mqOperation, (C.PMQVOID)(unsafe.Pointer(&mqcbd)),
 		object.hObj,
 		(C.PMQVOID)(unsafe.Pointer(&mqmd)), (C.PMQVOID)(unsafe.Pointer(&mqgmo)),
