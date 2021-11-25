@@ -149,6 +149,8 @@ the function - one for queue-based and one for an hConn-wide event handler that 
 require an hObj.
 */
 func (object *MQObject) CB(goOperation int32, gocbd *MQCBD, gomd *MQMD, gogmo *MQGMO) error {
+	fmt.Println("Registering Callback")
+
 	var mqrc C.MQLONG
 	var mqcc C.MQLONG
 	var mqOperation C.MQLONG
@@ -158,11 +160,11 @@ func (object *MQObject) CB(goOperation int32, gocbd *MQCBD, gomd *MQMD, gogmo *M
 
 	err := checkMD(gomd, "MQCB")
 	if err != nil {
-		return err
+		return fmt.Errorf("checkMD: %w", err)
 	}
 	err = checkGMO(gogmo, "MQCB")
 	if err != nil {
-		return err
+		return fmt.Errorf("checkGMO: %w", err)
 	}
 
 	mqOperation = C.MQLONG(goOperation)
