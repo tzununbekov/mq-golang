@@ -189,6 +189,7 @@ func (object *MQObject) CB(goOperation int32, gocbd *MQCBD, gomd *MQMD, gogmo *M
 	}
 
 	if mqcc != C.MQCC_OK {
+		fmt.Printf("mqcc != MQCC_OK: %+v", mqcc)
 		return &mqreturn
 	}
 
@@ -207,6 +208,7 @@ func (object *MQObject) CB(goOperation int32, gocbd *MQCBD, gomd *MQMD, gogmo *M
 		mapLock()
 		cbMap[key] = info
 		mapUnlock()
+		fmt.Println("Callback registered")
 	default: // Other values leave the map alone
 	}
 
