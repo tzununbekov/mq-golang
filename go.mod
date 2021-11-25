@@ -1,4 +1,4 @@
-module github.com/tzununbekov/mq-golang/v5
+module github.com/tzununbekov/mq-golang/ibmmq
 
 go 1.13
 
