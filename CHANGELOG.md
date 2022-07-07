@@ -1,10 +1,27 @@
 # Changelog
 Newest updates are at the top of this file.
 
+## Jul 23 2022 - v5.3.1
+- Fix #189 compile problem
+
+## Jun 23 2022 - v5.3.0
+- Update for MQ 9.3.0
+- ibmmq - Add MQI parameters for keystore passwords
+- mqmetric - Option to hide svrconn jobname attribute (ibm-messaging/mq-metric-samples#114)
+- mqmetric - Option to use Durable subscriptions for queue metric data (reduces need to increase MAXHANDS)
+- mqmetric - Exit with error if trying to use resource publications with pre-V9 qmgrs
+
+## Feb 25 2022 - v5.2.5
+* Update for MQ 9.2.5
+* ibmmq - Add MQI character constants for Group/Segment status
+* ibmmq - PCF parser now understands PCF Groups
+* samples - Add a PCF command creator/parser
+* mqmetric - Optional ReplyQ2 config parm as separate name (ibm-messaging/mq-metric-samples#100)
+
 ## Nov 19 2021 - v5.2.4
 * Update for MQ 9.2.4
 * ibmmq - Support for MQBNO (application balancing) structure
-* mqmetric - Ensure DESCR fields are valid UTF8 
+* mqmetric - Ensure DESCR fields are valid UTF8
 * mqmetric - Deal with discovery of large numbers of queues on z/OS (ibm-messaging/mq-metric-samples#75)
 * samples - Add alternative Dockerfile based on Red Hat UBI images
 
@@ -19,7 +36,7 @@ Newest updates are at the top of this file.
 * Add a sample amqsbo.go to show how to deal with poison messages
 * samples - Containerised sample turned into multi-stage Dockerfile to reduce size of deployed app container
 
-## Mar 25 2021 - v5.2.0 
+## Mar 25 2021 - v5.2.0
 Scope of mqmetric changes seem to justify new minor number
 * Update for MQ 9.2.2
 * Add DltMH calls to clarify samples

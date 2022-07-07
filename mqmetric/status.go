@@ -128,11 +128,13 @@ func statusTimeDiff(now time.Time, d string, t string) int64 {
 		if err == nil {
 			diff := now.Sub(parsedT).Seconds() + ci.tzOffsetSecs
 
-			if diff < -(60 * 5) { // Cannot have status from the future but allow a tiny amount of flex
-				if !timeTravelWarningIssued {
-					logError("Status reports appear to be from the future. Difference is approximately %d seconds. Check the TZ Offset value in the program configuration.", int64(-diff))
-					//logError("statusTimeDiff d:%s t:%s diff:%f tzoffset: %f err:%v\n", d, t, diff, ci.tzOffsetSecs, err)
-					timeTravelWarningIssued = true
+			if diff < 0 {
+				if diff < -(60 * 5) { // Cannot have status from the future but allow a tiny amount of flex
+					if !timeTravelWarningIssued {
+						logError("Status reports appear to be from the future. Difference is approximately %d seconds. Check the TZ Offset value in the program configuration.", int64(-diff))
+						logDebug("statusTimeDiff d:%s t:%s diff:%f tzoffset: %f err:%v\n", d, t, diff, ci.tzOffsetSecs, err)
+						timeTravelWarningIssued = true
+					}
 				}
 				diff = 0
 			}
@@ -144,10 +146,7 @@ func statusTimeDiff(now time.Time, d string, t string) int64 {
 	return rc
 }
 
-func statusClearReplyQ() {
-	traceEntry("statusClearReplyQ")
-	ci := getConnection(GetConnectionKey())
-
+func clearQ(hObj ibmmq.MQObject) {
 	buf := make([]byte, 0)
 	// Empty replyQ in case any left over from previous errors
 	for ok := true; ok; {
@@ -158,12 +157,21 @@ func statusClearReplyQ() {
 		gmo.Options |= ibmmq.MQGMO_NO_WAIT
 		gmo.Options |= ibmmq.MQGMO_CONVERT
 		gmo.Options |= ibmmq.MQGMO_ACCEPT_TRUNCATED_MSG
-		_, err := ci.si.statusReplyQObj.Get(getmqmd, gmo, buf)
+		_, err := hObj.Get(getmqmd, gmo, buf)
 
 		if err != nil && err.(*ibmmq.MQReturn).MQCC == ibmmq.MQCC_FAILED {
 			ok = false
 		}
 	}
+	return
+}
+
+func statusClearReplyQ() {
+	traceEntry("statusClearReplyQ")
+	ci := getConnection(GetConnectionKey())
+
+	clearQ(ci.si.statusReplyQObj)
+
 	traceExit("statusClearReplyQ", 0)
 	return
 }

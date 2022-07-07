@@ -29,6 +29,7 @@ type sessionInfo struct {
 	replyQObj       ibmmq.MQObject
 	qMgrObject      ibmmq.MQObject
 	replyQBaseName  string
+	replyQ2BaseName string
 	statusReplyQObj ibmmq.MQObject
 	statusReplyBuf  []byte
 
@@ -50,6 +51,8 @@ type connectionInfo struct {
 	useStatus            bool
 	useResetQStats       bool
 	showInactiveChannels bool
+	hideSvrConnJobname   bool
+	durableSubPrefix     string
 
 	// Only issue the warning about a '/' in an object name once.
 	globalSlashWarning bool
@@ -128,6 +131,7 @@ func newConnectionInfo(key string) *connectionInfo {
 	ci.useStatus = false
 	ci.useResetQStats = false
 	ci.showInactiveChannels = false
+	ci.hideSvrConnJobname = false
 
 	ci.globalSlashWarning = false
 	ci.localSlashWarning = false

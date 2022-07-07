@@ -6,6 +6,10 @@ Removal of function will only happen on a major version change.
 
 **Note:** There is no date currently planned for a new major release.
 
+## In next minor version
+The compiler will be set to use Go 1.17 at minimum from 
+the +build lines in the directives 
+
 ## In next major version
 The following interfaces are planned to be removed:
 
@@ -15,6 +19,8 @@ The following interfaces are planned to be removed:
   * The replacement APIs is already available in the v5 stream.
 * InqMap - was a temporary route to replace original Inq function
   * Replacement is the current Inq function
+* The PCFParameter class will change so that instead of separate
+  int64/string etc values, there's a single {} interface object
 
 #### Package mqmetric
 * Remove direct access to xxxStatus variables.

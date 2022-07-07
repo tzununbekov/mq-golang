@@ -1,7 +1,7 @@
 package ibmmq
 
 /*
-  Copyright (c) IBM Corporation 2016,2021
+  Copyright (c) IBM Corporation 2016,2022
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ to select what can be done.
 
 void freeCnoCCDTUrl(MQCNO *mqcno) {
 #if defined(MQCNO_VERSION_6) && MQCNO_CURRENT_VERSION >= MQCNO_VERSION_6
-	if (mqcno->CCDTUrlPtr != NULL) {
-		free(mqcno->CCDTUrlPtr);
-	}
+  if (mqcno->CCDTUrlPtr != NULL) {
+    free(mqcno->CCDTUrlPtr);
+  }
 #endif
 }
 
@@ -44,17 +44,19 @@ void setCnoCCDTUrl(MQCNO *mqcno, PMQCHAR url, MQLONG length) {
 #if defined(MQCNO_VERSION_6) && MQCNO_CURRENT_VERSION >= MQCNO_VERSION_6
   if (mqcno->Version < MQCNO_VERSION_6) {
 	  mqcno->Version = MQCNO_VERSION_6;
-	}
-	mqcno->CCDTUrlOffset = 0;
-	mqcno->CCDTUrlPtr = NULL;
-	mqcno->CCDTUrlLength = length;
-	if (url != NULL && length > 0) {
-		mqcno->CCDTUrlPtr = url;
-	}
+  }
+  mqcno->CCDTUrlOffset = 0;
+  mqcno->CCDTUrlPtr = NULL;
+  mqcno->CCDTUrlLength = length;
+  if (url != NULL && length > 0) {
+    mqcno->CCDTUrlPtr = url;
+  }
 #else
-	if (url != NULL) {
-		free(url);
-	}
+// We fail silently here, but perhaps ought to give an error in some way as you've tried to use
+// parameter that is not permitted at the currently-installed version of MQ
+  if (url != NULL) {
+    free(url);
+  }
 #endif
 }
 
@@ -69,27 +71,30 @@ void setCnoApplName(MQCNO *mqcno, PMQCHAR applName, MQLONG length) {
     }
   }
 #endif
+
+  // We can always free the string space immediately as it's not used inside the MQI. Unlike
+  // the varchar elements such as CCDTUrl.
   if (applName != NULL) {
     free(applName);
   }
   return;
 }
 
-// A totally new structure in MQ 9.2.4. In order to handle builds against older versions of MQ
+// A new structure in MQ 9.2.4. In order to handle builds against older versions of MQ
 // we have to extract the individual fields from the Go version of the structure first. And
 // we then use those as separate parameters to this function.
 void setCnoBalanceParms(MQCNO *mqcno, MQLONG ApplType, MQLONG Timeout, MQLONG Options) {
 #if defined(MQCNO_VERSION_8) && MQCNO_CURRENT_VERSION >= MQCNO_VERSION_8
   PMQBNO pmqbno = malloc(MQBNO_CURRENT_LENGTH); // This is freed on return from the C function
   pmqbno->Version = MQBNO_VERSION_1;
-	memcpy(pmqbno->StrucId,MQBNO_STRUC_ID,4);
+  memcpy(pmqbno->StrucId,MQBNO_STRUC_ID,4);
   pmqbno->ApplType = ApplType;
   pmqbno->Timeout = Timeout;
   pmqbno->Options = Options;
   mqcno->BalanceParmsPtr = pmqbno;
-	mqcno->BalanceParmsOffset = 0;
+  mqcno->BalanceParmsOffset = 0;
   if (mqcno->Version < MQCNO_VERSION_8) {
-  	mqcno->Version = MQCNO_VERSION_8;
+    mqcno->Version = MQCNO_VERSION_8;
   }
 #endif
   return;
@@ -98,10 +103,69 @@ void setCnoBalanceParms(MQCNO *mqcno, MQLONG ApplType, MQLONG Timeout, MQLONG Op
 void freeCnoBalanceParms(MQCNO *mqcno) {
 #if defined(MQCNO_VERSION_8) && MQCNO_CURRENT_VERSION >= MQCNO_VERSION_8
   if (mqcno->Version >= MQCNO_VERSION_8 && mqcno->BalanceParmsPtr != NULL) {
-	  free(mqcno->BalanceParmsPtr);
-	}
+    free(mqcno->BalanceParmsPtr);
+  }
 #endif
   return;
+}
+
+size_t getMaxCDLength() {
+  size_t l;
+#if defined(MQCD_VERSION_12)
+  l = MQCD_LENGTH_12;
+#else
+  l = MQCD_LENGTH_11; // The minimum supported here
+#endif
+  return l;
+}
+
+size_t getMaxSCOLength() {
+  size_t l;
+#if defined(MQSCO_VERSION_6)
+  l = MQSCO_LENGTH_6;
+#else
+  l = MQSCO_LENGTH_5; // The minimum supported here
+#endif
+  return l;
+}
+
+size_t getMaxCSPLength() {
+  size_t l;
+#if defined(MQCSP_VERSION_2)
+  l = MQCSP_LENGTH_2;
+#else
+  l = MQCSP_LENGTH_1; // The minimum supported here
+#endif
+  return l;
+}
+
+void setCspInitialKey(MQCSP *mqcsp, PMQCHAR initialKey, MQLONG length) {
+#if defined(MQCSP_VERSION_2) && MQCSP_CURRENT_VERSION >= MQCSP_VERSION_2
+  if (mqcsp->Version < MQCSP_VERSION_2) {
+	  mqcsp->Version = MQCSP_VERSION_2;
+  }
+  mqcsp->InitialKeyOffset = 0;
+  mqcsp->InitialKeyLength = length;
+  if (initialKey != NULL && length > 0) {
+    mqcsp->InitialKeyPtr = initialKey;
+  } else {
+    mqcsp->InitialKeyPtr = NULL;
+  }
+#else
+// We fail silently here, but perhaps ought to give an error in some way as you've tried to use
+// parameter that is not permitted at the currently-installed version of MQ
+  if (initialKey != NULL) {
+    free(initialKey);
+  }
+#endif
+}
+
+void freeCspInitialKey(MQCSP *mqcsp) {
+#if defined(MQCSP_VERSION_2) && MQCSP_CURRENT_VERSION >= MQCSP_VERSION_2
+  if (mqcsp->InitialKeyPtr != NULL) {
+    free(mqcsp->InitialKeyPtr);
+  }
+#endif
 }
 
 */
@@ -131,6 +195,7 @@ type MQCSP struct {
 	AuthenticationType int32
 	UserId             string
 	Password           string
+	InitialKey         string
 }
 
 /*
@@ -167,6 +232,7 @@ func NewMQCSP() *MQCSP {
 	csp.AuthenticationType = int32(C.MQCSP_AUTH_NONE)
 	csp.UserId = ""
 	csp.Password = ""
+	csp.InitialKey = ""
 
 	return csp
 }
@@ -205,7 +271,9 @@ func copyCNOtoC(mqcno *C.MQCNO, gocno *MQCNO) {
 	mqcno.ClientConnOffset = 0
 	if gocno.ClientConn != nil {
 		gocd := gocno.ClientConn
-		mqcd = C.PMQCD(C.malloc(C.MQCD_LENGTH_11))
+		l := C.getMaxCDLength()
+		mqcd = C.PMQCD(C.malloc(l))
+		C.memset((unsafe.Pointer)(mqcd), 0, C.size_t(l))
 		copyCDtoC(mqcd, gocd)
 		mqcno.ClientConnPtr = C.MQPTR(mqcd)
 		if gocno.Version < 2 {
@@ -218,8 +286,9 @@ func copyCNOtoC(mqcno *C.MQCNO, gocno *MQCNO) {
 	mqcno.SSLConfigOffset = 0
 	if gocno.SSLConfig != nil {
 		gosco := gocno.SSLConfig
-		mqsco = C.PMQSCO(C.malloc(C.MQSCO_LENGTH_5))
-		C.memset((unsafe.Pointer)(mqsco), 0, C.size_t(C.MQSCO_LENGTH_5))
+		l := C.getMaxSCOLength()
+		mqsco = C.PMQSCO(C.malloc(l))
+		C.memset((unsafe.Pointer)(mqsco), 0, C.size_t(l))
 		copySCOtoC(mqsco, gosco)
 		mqcno.SSLConfigPtr = C.PMQSCO(mqsco)
 		if gocno.Version < 4 {
@@ -233,8 +302,9 @@ func copyCNOtoC(mqcno *C.MQCNO, gocno *MQCNO) {
 	if gocno.SecurityParms != nil {
 		gocsp := gocno.SecurityParms
 
-		mqcsp = C.PMQCSP(C.malloc(C.MQCSP_LENGTH_1))
-		C.memset((unsafe.Pointer)(mqcsp), 0, C.size_t(C.MQCSP_LENGTH_1))
+		l := C.getMaxCSPLength()
+		mqcsp = C.PMQCSP(C.malloc(l))
+		C.memset((unsafe.Pointer)(mqcsp), 0, C.size_t(l))
 		setMQIString((*C.char)(&mqcsp.StrucId[0]), "CSP ", 4)
 		mqcsp.Version = C.MQCSP_VERSION_1
 		mqcsp.AuthenticationType = C.MQLONG(gocsp.AuthenticationType)
@@ -242,7 +312,11 @@ func copyCNOtoC(mqcno *C.MQCNO, gocno *MQCNO) {
 		mqcsp.CSPPasswordOffset = 0
 
 		if gocsp.UserId != "" {
-			mqcsp.AuthenticationType = C.MQLONG(C.MQCSP_AUTH_USER_ID_AND_PWD)
+			// This next line is a convenience as there is only one AUTH method for now
+			// If you've set a non-blank userid, then you MUST be asking for userid/pwd checking.
+			if mqcsp.AuthenticationType == C.MQCSP_AUTH_NONE {
+				mqcsp.AuthenticationType = C.MQLONG(C.MQCSP_AUTH_USER_ID_AND_PWD)
+			}
 			mqcsp.CSPUserIdPtr = C.MQPTR(unsafe.Pointer(C.CString(gocsp.UserId)))
 			mqcsp.CSPUserIdLength = C.MQLONG(len(gocsp.UserId))
 		} else {
@@ -256,6 +330,12 @@ func copyCNOtoC(mqcno *C.MQCNO, gocno *MQCNO) {
 			mqcsp.CSPPasswordPtr = nil
 			mqcsp.CSPPasswordLength = 0
 		}
+
+		if gocsp.InitialKey != "" {
+			// This C function will bump the CSP version if necessary
+			C.setCspInitialKey(mqcsp, C.PMQCHAR(C.CString(gocsp.InitialKey)), C.MQLONG(len(gocsp.InitialKey)))
+		}
+
 		mqcno.SecurityParmsPtr = C.PMQCSP(mqcsp)
 		if gocno.Version < 5 {
 			mqcno.Version = C.MQCNO_VERSION_5
@@ -300,6 +380,9 @@ func copyCNOfromC(mqcno *C.MQCNO, gocno *MQCNO) {
 			C.memset((unsafe.Pointer)(mqcno.SecurityParmsPtr.CSPPasswordPtr), 0, C.size_t(mqcno.SecurityParmsPtr.CSPPasswordLength))
 			C.free(unsafe.Pointer(mqcno.SecurityParmsPtr.CSPPasswordPtr))
 		}
+
+		C.freeCspInitialKey(mqcno.SecurityParmsPtr) // The code in this function checks validity
+
 		C.free(unsafe.Pointer(mqcno.SecurityParmsPtr))
 	}
 

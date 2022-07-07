@@ -16,7 +16,7 @@ package ibmmq
 * for each value; those can be found in other header files such as
 * cmqc.h.
 ****************************************************************
-* Copyright (c) IBM Corporation 1993, 2021
+* Copyright (c) IBM Corporation 1993, 2022
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -1421,6 +1421,10 @@ func MQItoString(class string, value int) string {
 			s = "MQCMDL_LEVEL_923"
 		case 924:
 			s = "MQCMDL_LEVEL_924"
+		case 925:
+			s = "MQCMDL_LEVEL_925"
+		case 930:
+			s = "MQCMDL_LEVEL_930"
 		default:
 			s = ""
 		}
@@ -2079,6 +2083,8 @@ func MQItoString(class string, value int) string {
 			s = "MQFB_IIH_ERROR"
 		case 298:
 			s = "MQFB_NOT_AUTHORIZED_FOR_IMS"
+		case 299:
+			s = "MQFB_DATA_LENGTH_TOO_SHORT"
 		case 300:
 			s = "MQFB_IMS_ERROR"
 		case 401:
@@ -2495,6 +2501,8 @@ func MQItoString(class string, value int) string {
 			s = "MQIMMREASON_IN_TRANSACTION"
 		case 6:
 			s = "MQIMMREASON_AWAITS_REPLY"
+		case 7:
+			s = "MQIMMREASON_NO_REDIRECT"
 		default:
 			s = ""
 		}
