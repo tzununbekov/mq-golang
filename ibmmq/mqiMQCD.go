@@ -58,6 +58,9 @@ type MQCD struct {
 	CertificateLabel     string
 	HdrCompList          [2]int32
 	MsgCompList          [16]int32
+
+	RemoteUserIdentifier string
+	RemotePassword       string
 }
 
 /*
@@ -85,6 +88,9 @@ func NewMQCD() *MQCD {
 	cd.ConnectionAffinity = int32(C.MQCAFTY_PREFERRED)
 	cd.DefReconnect = int32(C.MQRCN_NO)
 	cd.CertificateLabel = ""
+
+	cd.RemoteUserIdentifier = ""
+	cd.RemotePassword = ""
 
 	cd.HdrCompList[0] = int32(C.MQCOMPRESS_NONE)
 	for i := 1; i < 2; i++ {
@@ -142,8 +148,8 @@ func copyCDtoC(mqcd *C.MQCD, gocd *MQCD) {
 	setMQIString((*C.char)(&mqcd.MCAUserIdentifier[0]), "", C.MQ_USER_ID_LENGTH)
 	mqcd.MCAType = C.MQMCAT_PROCESS
 	setMQIString((*C.char)(&mqcd.ConnectionName[0]), gocd.ConnectionName, C.MQ_CONN_NAME_LENGTH)
-	setMQIString((*C.char)(&mqcd.RemoteUserIdentifier[0]), "", C.MQ_USER_ID_LENGTH)
-	setMQIString((*C.char)(&mqcd.RemotePassword[0]), "", C.MQ_PASSWORD_LENGTH)
+	setMQIString((*C.char)(&mqcd.RemoteUserIdentifier[0]), gocd.RemoteUserIdentifier, C.MQ_USER_ID_LENGTH)
+	setMQIString((*C.char)(&mqcd.RemotePassword[0]), gocd.RemotePassword, C.MQ_PASSWORD_LENGTH)
 	setMQIString((*C.char)(&mqcd.MsgRetryExit[0]), "", C.MQ_EXIT_NAME_LENGTH)
 	setMQIString((*C.char)(&mqcd.MsgRetryUserData[0]), "", C.MQ_EXIT_DATA_LENGTH)
 	mqcd.MsgRetryCount = 10
